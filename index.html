@@ -493,8 +493,9 @@ html.lenis,html.lenis body{height:auto}
 html.has-cursor .cursor{display:grid}
 html.has-cursor:not(.lock) body,html.has-cursor:not(.lock) body a,html.has-cursor:not(.lock) body button,html.has-cursor:not(.lock) body label{cursor:none}
 html.lock .cursor{display:none}
-@media (prefers-reduced-motion:reduce){#loader{display:none}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+html.still #loader{display:none}
+html.still *,html.still *::before,html.still *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+.theme[aria-pressed="false"]{color:var(--ink-3)}
 .still #fpG{opacity:.14}.still #capA{opacity:0}.still #capB{opacity:1!important}
 </style>
 
@@ -517,6 +518,7 @@ html.lock .cursor{display:none}
       <a href="#toolkit">Toolkit</a>
     </nav>
     <div class="hdr-r">
+      <button class="theme" id="motionBtn" type="button" aria-pressed="true" title="Turn animations off" aria-label="Turn animations off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12c2.5-5 5.5-5 8 0s5.5 5 8 0"/><path d="M4 18c2.5-5 5.5-5 8 0s5.5 5 8 0" opacity=".45"/></svg></button>
       <button class="theme" id="themeBtn" type="button" aria-label="Switch light or dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></button>
       <a class="btn btn-primary mag" href="#contact">Let's talk</a>
     </div>
@@ -1249,7 +1251,12 @@ html.lock .cursor{display:none}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script>
 (function(){
-  var still=matchMedia('(prefers-reduced-motion: reduce)').matches&&!/[?&]motion\b/.test(location.search), fine=matchMedia('(pointer: fine)').matches;
+  // Motion is on by default; visitors can switch it off with the header button (remembered per browser).
+  var still=false;try{still=localStorage.getItem('motion')==='off'}catch(e){}
+  var fine=matchMedia('(pointer: fine)').matches;
+  var mb=document.getElementById('motionBtn');
+  if(mb){mb.setAttribute('aria-pressed',String(!still));mb.title=still?'Turn animations on':'Turn animations off';mb.setAttribute('aria-label',mb.title);
+    mb.addEventListener('click',function(){try{localStorage.setItem('motion',still?'on':'off')}catch(e){}location.reload()})}
   var G=window.gsap, ST=window.ScrollTrigger; if(G&&ST)G.registerPlugin(ST);
   if(still||!G)document.documentElement.classList.add('still');
   var lenis=null, loaderDelay=0, loader=document.getElementById('loader');
